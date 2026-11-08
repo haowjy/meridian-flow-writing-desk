@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meridian Flow — The writing desk</title>
+  <style>
+    :root {
+      --paper: #f4f1ea;
+      --card: #fffcf6;
+      --ink: #1d1915;
+      --muted: #5e574e;
+      --line: #ddd5c8;
+      --jade: #2c6b5b;
+      --jade-soft: #e4f0eb;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 18px/1.5 "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    }
+    header, main, footer { width: min(1120px, calc(100% - 32px)); margin: 0 auto; }
+    header { padding: 48px 0 24px; }
+    header p.kicker {
+      font: 600 13px/1.3 "Segoe UI", system-ui, sans-serif;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--jade);
+      margin: 0 0 10px;
+    }
+    h1 {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin: 0 0 16px;
+    }
+    .intro { max-width: 46rem; color: var(--muted); }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      padding: 8px 0 28px;
+      font: 500 14px/1.3 "Segoe UI", system-ui, sans-serif;
+    }
+    nav a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
+    nav a:hover { border-color: var(--ink); }
+    h2 {
+      font-size: 1.8rem;
+      letter-spacing: -0.02em;
+      margin: 56px 0 12px;
+    }
+    h3 {
+      font: 650 13px/1.3 "Segoe UI", system-ui, sans-serif;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 28px 0 12px;
+    }
+    .callout {
+      background: var(--jade-soft);
+      border-left: 3px solid var(--jade);
+      padding: 14px 18px;
+      margin: 18px 0 28px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      font: 15px/1.4 "Segoe UI", system-ui, sans-serif;
+      margin: 20px 0 12px;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+    th {
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 650;
+    }
+    .pill {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--jade);
+      color: white;
+      font: 650 11px/1.4 "Segoe UI", system-ui, sans-serif;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      vertical-align: middle;
+    }
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 24px 0 8px;
+    }
+    .tabs button {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font: 550 14px/1.2 "Segoe UI", system-ui, sans-serif;
+      cursor: pointer;
+    }
+    .tabs button[aria-selected="true"] {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: #f7f3ea;
+    }
+    .lede { margin: 12px 0 6px; }
+    .tradeoff { color: var(--muted); margin: 0 0 8px; }
+    .desktop-grid, .phone-grid { display: grid; gap: 24px; }
+    .phone-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 360px)); }
+    figure { margin: 0; }
+    figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      background: #ddd;
+      box-shadow: 0 18px 40px rgba(40, 30, 16, 0.12);
+    }
+    figure.phone img { max-width: 360px; }
+    figcaption { margin-top: 10px; }
+    figcaption strong { display: block; font: 650 16px/1.3 "Segoe UI", system-ui, sans-serif; }
+    figcaption span { display: block; color: var(--muted); font-size: 0.95rem; margin-top: 4px; }
+    button.zoom {
+      appearance: none;
+      border: 0;
+      padding: 0;
+      background: none;
+      width: 100%;
+      text-align: left;
+      cursor: zoom-in;
+    }
+    #lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(16, 13, 10, 0.86);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 20;
+    }
+    #lightbox.open { display: flex; }
+    #lightbox img {
+      max-width: min(1400px, 100%);
+      max-height: calc(100vh - 80px);
+      border-radius: 8px;
+    }
+    #lightbox p {
+      position: absolute;
+      left: 24px;
+      bottom: 16px;
+      color: #f4efe6;
+      font: 500 14px/1.3 "Segoe UI", system-ui, sans-serif;
+      margin: 0;
+    }
+    footer {
+      color: var(--muted);
+      padding: 48px 0 64px;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="kicker">Meridian Flow · UX studies</p>
+    <h1>The writing desk</h1>
+    <p class="intro">Six nesting variations for Chat, Work, and Agents/Skills, plus the first-pass desktop and phone studies. These are proposed concepts, not screenshots of the running app. Click any frame to view it larger.</p>
+  </header>
+  <nav>
+    <a href="#nesting">Nesting variations</a>
+    <a href="#desktop">First-pass desktop</a>
+    <a href="#phone">First-pass phone</a>
+    <a href="#other">Skills and recovery</a>
+  </nav>
+  <main>
+    <section id="nesting">
+      <h2>Nesting variations</h2>
+      <p class="intro">The editor stays home, with sources and files attached to it. The question is where Work and team management live.</p>
+      <div class="callout">A is the starting recommendation: Work as a project drawer, and agents/skills one level under chat.</div>
+      <div style="overflow:auto">
+        <table>
+          <thead>
+            <tr><th>Variation</th><th>Editor</th><th>Sources / files</th><th>Chat</th><th>Work</th><th>Agents / Skills</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>A</strong> · Recommended nesting <span class="pill">Start here</span></td><td>Home</td><td>Attached sidebar</td><td>Companion</td><td>Project drawer/sheet</td><td>Chat → Team</td></tr><tr><td><strong>B</strong> · Work as a destination</td><td>Write destination</td><td>Attached sidebar</td><td>Companion</td><td>Write / Work peer</td><td>Chat → Team</td></tr><tr><td><strong>C</strong> · Work inside Chat</td><td>Home</td><td>Attached sidebar</td><td>Companion + Activity</td><td>Inside Chat Activity</td><td>Chat → Team</td></tr><tr><td><strong>D</strong> · Studio destination</td><td>Write destination</td><td>Attached sidebar</td><td>Companion</td><td>Project drawer/sheet</td><td>Write / Studio peer</td></tr><tr><td><strong>E</strong> · Shared project Room</td><td>Home</td><td>Attached sidebar</td><td>Companion</td><td>Project Room → Work</td><td>Project Room → Team / Skills</td></tr><tr><td><strong>F</strong> · Library-forward</td><td>Home</td><td>Roomier Library pane</td><td>Companion</td><td>Project drawer/sheet</td><td>Chat → Team</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Nesting variations"><button type="button" role="tab" id="tab-A" aria-controls="panel-A" aria-selected="true">A · Recommended nesting</button><button type="button" role="tab" id="tab-B" aria-controls="panel-B" aria-selected="false">B · Work as a destination</button><button type="button" role="tab" id="tab-C" aria-controls="panel-C" aria-selected="false">C · Work inside Chat</button><button type="button" role="tab" id="tab-D" aria-controls="panel-D" aria-selected="false">D · Studio destination</button><button type="button" role="tab" id="tab-E" aria-controls="panel-E" aria-selected="false">E · Shared project Room</button><button type="button" role="tab" id="tab-F" aria-controls="panel-F" aria-selected="false">F · Library-forward</button></div>
+      
+      <section class="panel" role="tabpanel" id="panel-A" aria-labelledby="tab-A">
+        <p class="lede">Keep the manuscript home; open Work as a project utility and manage the team inside Chat.</p>
+        <p class="tradeoff">What this costs: Calmest writing home, with one extra step to configuration.</p>
+        <h3>Desktop</h3>
+        <div class="desktop-grid">
+        <figure class="frame">
+          <button type="button" class="zoom" data-src="images/A1-desktop-work-drawer.jpg" data-title="Work drawer open">
+            <img src="images/A1-desktop-work-drawer.jpg" alt="Work drawer open. Project Work is open while Chat is closed. Sources and files stay attached to the manuscript.">
+          </button>
+          <figcaption>
+            <strong>Work drawer open</strong>
+            <span>Project Work is open while Chat is closed. Sources and files stay attached to the manuscript.</span>
+          </figcaption>
+        </figure>
+        <figure class="frame">
+          <button type="button" class="zoom" data-src="images/A2-desktop-chat-team.jpg" data-title="Chat → Team open">
+            <img src="images/A2-desktop-chat-team.jpg" alt="Chat → Team open. Team configuration replaces the companion’s contents, not the manuscript. Back returns to the conversation.">
+          </button>
+          <figcaption>
+            <strong>Chat → Team open</strong>
+            <span>Team configuration replaces the companion’s contents, not the manuscript. Back returns to the conversation.</span>
+          </figcaption>
+        </figure></div>
+        <h3>Phone</h3><div class="phone-grid">
+        <figure class="frame phone">
+          <button type="button" class="zoom" data-src="images/A3-phone-work-sheet.jpg" data-title="Manuscript + Work sheet">
+            <img src="images/A3-phone-work-sheet.jpg" alt="Manuscript + Work sheet. One project Work sheet owns the foreground. Closing it returns to the manuscript.">
+          </button>
+          <figcaption>
+            <strong>Manuscript + Work sheet</strong>
+            <span>One project Work sheet owns the foreground. Closing it returns to the manuscript.</span>
+          </figcaption>
+        </figure>
+        <figure class="frame phone">
+          <button type="button" class="zoom" data-src="images/A4-phone-chat-team.jpg" data-title="Chat → Team → Skills">
+            <img src="images/A4-phone-chat-team.jpg" alt="Chat → Team → Skills. Team is a full-screen child of Chat. Back returns to conversation.">
+          </button>
+          <figcaption>
+            <strong>Chat → Team → Skills</strong>
+            <span>Team is a full-screen child of Chat. Back returns to conversation.</span>
+          </figcaption>
+        </figure></div>
+      </section>
+      <section class="panel" role="tabpanel" id="panel-B" aria-labelledby="tab-B" hidden>
+        <p class="lede">Give sustained planning a real Write / Work switch; Chat stays beside either destination.</p>
+        <p class="tradeoff">What this costs: Better management focus, but more navigation away from prose.</p>
+        <h3>Desktop</h3>
+        <div class="desktop-grid">
+        <figure class="frame">
+          <button type="button" class="zoom" data-src="images/B-desktop-work-destination.jpg" data-title="Work destination">
+            <img src="images/B-desktop-work-destination.jpg" alt="Work destination. Write / Work changes the main workspace. Chat is still a companion, with Team nested inside it.">
+          </button>
+          <figcaption>
+            <strong>Work destination</strong>
+            <span>Write / Work changes the main workspace. Chat is still a companion, with Team nested inside it.</span>
+          </figcaption>
+        </figure></div>
+        
+      </section>
+      <section class="panel" role="tabpanel" id="panel-C" aria-labelledby="tab-C" hidden>
+        <p class="lede">Put goals, running agents, review and tasks in Chat Activity; Team remains a child of Chat.</p>
+        <p class="tradeoff">What this costs: Fewest surfaces, but Chat must carry both conversation and coordination.</p>
+        <h3>Desktop</h3>
+        <div class="desktop-grid">
+        <figure class="frame">
+          <button type="button" class="zoom" data-src="images/C1-desktop-chat-activity.jpg" data-title="Chat Activity open">
+            <img src="images/C1-desktop-chat-activity.jpg" alt="Chat Activity open. Activity owns goals, running agents, review and a proposed task stream. There is no separate Work button, drawer or destination.">
+          </button>
+          <figcaption>
+            <strong>Chat Activity open</strong>
+            <span>Activity owns goals, running agents, review and a proposed task stream. There is no separate Work button, drawer or destination.</span>
+          </figcaption>
+        </figure>
+        <figure class="frame">
+          <button type="button" class="zoom" data-src="images/C2-desktop-chat-team.jpg" data-title="Chat → Team open">
+            <img src="images/C2-desktop-chat-team.jpg" alt="Chat → Team open. Configuration sits one level down from Chat. Running work links back to Activity.">
+          </button>
+          <figcaption>
+            <strong>Chat → Team open</strong>
+            <span>Configuration sits one level down from Chat. Running work links back to Activity.</span>
+          </figcaption>
+        </figure></div>
+        <h3>Phone</h3><div class="phone-grid">
+        <figure class="frame phone">
+          <button type="button" class="zoom" data-src="images/C3-phone-editor.jpg" data-title="Manuscript home">
+            <img src="images/C3-phone-editor.jpg" alt="Manuscript home. Material access and Chat remain discoverable. There is no separate Work destination.">
+          </button>
+          <figcaption>
+            <strong>Manuscript home</strong>
+            <span>Material access and Chat remain discoverable. There is no separate Work destination.</span>
+          </figcaption>
+        </figure>
+        <figure class="frame phone">
+          <button type="button" class="zoom" data-src="images/C4-phone-chat-activity.jpg" data-title="Chat Activity">
+            <img src="images/C4-phone-chat-activity.jpg" alt="Chat Activity. Chat takes the full screen. Activity contains running work and review; Team stays one level down.">
+          </button>
+          <figcaption>
+            <strong>Chat Activity</strong>
+            <span>Chat takes the full screen. Activity contains running work and review; Team stays one level down.</span>
+          </figcaption>
+        </figure></div>
+      </section>
+      <section class="panel" role="tabpanel" id="panel-D" aria-labelledby="tab-D" hidden>
+        <p class="lede">Make agent and skill configuration a dedicated Studio beside Write; keep Work a drawer.</p>
+        <p class="tradeoff">What this costs: Management is discoverable, but an infrequent activity earns permanent chrome.</p>
+        <h3>Desktop</h3>
+        <div class="desktop-grid">
+        <figure class="frame">
+          <button type="button" class="zoom" data-src="images/D-desktop-studio.jpg" data-title="Studio destination">
+            <img src="images/D-desktop-studio.jpg" alt="Studio destination. Studio replaces the manuscript for deliberate configuration. Work remains a drawer; Chat remains a companion.">
+          </button>
+          <figcaption>
+            <strong>Studio destination</strong>
+            <span>Studio replaces the manuscript for deliberate configuration. Work remains a drawer; Chat remains a companion.</span>
+          </figcaption>
+        </figure></div>
+        
+      </section>
+      <section class="panel" role="tabpanel" id="panel-E" aria-labelledby="tab-E" hidden>
+        <p class="lede">Group Work, Team and Skills inside one project-scoped Room utility, outside Chat.</p>
+        <p class="tradeoff">What this costs: One home for project operations; Room needs discipline to avoid becoming a junk drawer.</p>
+        <h3>Desktop</h3>
+        <div class="desktop-grid">
+        <figure class="frame">
+          <button type="button" class="zoom" data-src="images/E-desktop-project-room.jpg" data-title="Project Room open">
+            <img src="images/E-desktop-project-room.jpg" alt="Project Room open. Room owns Work, Team and Skills together. Chat is closed while Room owns the auxiliary surface.">
+          </button>
+          <figcaption>
+            <strong>Project Room open</strong>
+            <span>Room owns Work, Team and Skills together. Chat is closed while Room owns the auxiliary surface.</span>
+          </figcaption>
+        </figure></div>
+        
+      </section>
+      <section class="panel" role="tabpanel" id="panel-F" aria-labelledby="tab-F" hidden>
+        <p class="lede">Give Sources and Files a roomier material column; keep A’s nesting for Chat, Work and Team.</p>
+        <p class="tradeoff">What this costs: Better browsing and context, at the cost of manuscript width.</p>
+        <h3>Desktop</h3>
+        <div class="desktop-grid">
+        <figure class="frame">
+          <button type="button" class="zoom" data-src="images/F-desktop-library-pane.jpg" data-title="Library material column">
+            <img src="images/F-desktop-library-pane.jpg" alt="Library material column. Library is a wider attached material pane, not a top-level destination. Team is still reached through Chat; Work stays a drawer.">
+          </button>
+          <figcaption>
+            <strong>Library material column</strong>
+            <span>Library is a wider attached material pane, not a top-level destination. Team is still reached through Chat; Work stays a drawer.</span>
+          </figcaption>
+        </figure></div>
+        
+      </section>
+    </section>
+    <section id="desktop">
+      <h2>First-pass desktop studies</h2>
+      <p class="intro">The original writing-desk direction: horizontal project navigation, a stable manuscript center, and an optional conversation companion.</p>
+      <div class="desktop-grid">
+        <figure class="frame">
+          <button type="button" class="zoom" data-src="images/01-writing-desk.jpg" data-title="01 · The writing desk">
+            <img src="images/01-writing-desk.jpg" alt="01 · The writing desk. Continue the chapter without losing the conversation.">
+          </button>
+          <figcaption>
+            <strong>01 · The writing desk</strong>
+            <span>Continue the chapter without losing the conversation.</span>
+          </figcaption>
+        </figure>
+        <figure class="frame">
+          <button type="button" class="zoom" data-src="images/02-document-review.jpg" data-title="02 · Review in the document">
+            <img src="images/02-document-review.jpg" alt="02 · Review in the document. Judge the prose where the change lands.">
+          </button>
+          <figcaption>
+            <strong>02 · Review in the document</strong>
+            <span>Judge the prose where the change lands.</span>
+          </figcaption>
+        </figure>
+        <figure class="frame">
+          <button type="button" class="zoom" data-src="images/03-conversation-team.jpg" data-title="03 · Conversation and teammates">
+            <img src="images/03-conversation-team.jpg" alt="03 · Conversation and teammates. Work with the assistant while keeping its sources and teammates reachable.">
+          </button>
+          <figcaption>
+            <strong>03 · Conversation and teammates</strong>
+            <span>Work with the assistant while keeping its sources and teammates reachable.</span>
+          </figcaption>
+        </figure>
+        <figure class="frame">
+          <button type="button" class="zoom" data-src="images/04-library-kb.jpg" data-title="04 · Library and Knowledge Base">
+            <img src="images/04-library-kb.jpg" alt="04 · Library and Knowledge Base. Find, place and understand the book’s documents.">
+          </button>
+          <figcaption>
+            <strong>04 · Library and Knowledge Base</strong>
+            <span>Find, place and understand the book’s documents.</span>
+          </figcaption>
+        </figure>
+        <figure class="frame">
+          <button type="button" class="zoom" data-src="images/05-work.jpg" data-title="05 · Work, goals and recovery">
+            <img src="images/05-work.jpg" alt="05 · Work, goals and recovery. Keep one writing goal’s chats, notes and proposals together.">
+          </button>
+          <figcaption>
+            <strong>05 · Work, goals and recovery</strong>
+            <span>Keep one writing goal’s chats, notes and proposals together.</span>
+          </figcaption>
+        </figure>
+        <figure class="frame">
+          <button type="button" class="zoom" data-src="images/06-import-export.jpg" data-title="06 · Document import and export">
+            <img src="images/06-import-export.jpg" alt="06 · Document import and export. Bring a manuscript in and get the project out without guessing what survived.">
+          </button>
+          <figcaption>
+            <strong>06 · Document import and export</strong>
+            <span>Bring a manuscript in and get the project out without guessing what survived.</span>
+          </figcaption>
+        </figure>
+        <figure class="frame">
+          <button type="button" class="zoom" data-src="images/07-settings-usage.jpg" data-title="07 · Settings, usage and billing">
+            <img src="images/07-settings-usage.jpg" alt="07 · Settings, usage and billing. Change a preference or understand usage without entering an admin console.">
+          </button>
+          <figcaption>
+            <strong>07 · Settings, usage and billing</strong>
+            <span>Change a preference or understand usage without entering an admin console.</span>
+          </figcaption>
+        </figure>
+        <figure class="frame">
+          <button type="button" class="zoom" data-src="images/08-first-run.jpg" data-title="08 · First project, first chapter">
+            <img src="images/08-first-run.jpg" alt="08 · First project, first chapter. Reach the first written word with one obvious next step.">
+          </button>
+          <figcaption>
+            <strong>08 · First project, first chapter</strong>
+            <span>Reach the first written word with one obvious next step.</span>
+          </figcaption>
+        </figure></div>
+    </section>
+    <section id="phone">
+      <h2>First-pass phone studies</h2>
+      <p class="intro">Full-screen destinations and a single owning sheet, rather than compressed desktop columns.</p>
+      <div class="phone-grid">
+        <figure class="frame phone">
+          <button type="button" class="zoom" data-src="images/09-phone-home.jpg" data-title="09 · Phone home and library">
+            <img src="images/09-phone-home.jpg" alt="09 · Phone home and library. Resume a chapter or find a document with a thumb.">
+          </button>
+          <figcaption>
+            <strong>09 · Phone home and library</strong>
+            <span>Resume a chapter or find a document with a thumb.</span>
+          </figcaption>
+        </figure>
+        <figure class="frame phone">
+          <button type="button" class="zoom" data-src="images/10-phone-editor.jpg" data-title="10 · Phone manuscript">
+            <img src="images/10-phone-editor.jpg" alt="10 · Phone manuscript. Write a sentence and reach formatting without losing it behind chrome.">
+          </button>
+          <figcaption>
+            <strong>10 · Phone manuscript</strong>
+            <span>Write a sentence and reach formatting without losing it behind chrome.</span>
+          </figcaption>
+        </figure>
+        <figure class="frame phone">
+          <button type="button" class="zoom" data-src="images/11-phone-chat.jpg" data-title="11 · Phone conversation">
+            <img src="images/11-phone-chat.jpg" alt="11 · Phone conversation. Send, steer or stop the conversation without scope becoming a mystery.">
+          </button>
+          <figcaption>
+            <strong>11 · Phone conversation</strong>
+            <span>Send, steer or stop the conversation without scope becoming a mystery.</span>
+          </figcaption>
+        </figure>
+        <figure class="frame phone">
+          <button type="button" class="zoom" data-src="images/12-phone-review.jpg" data-title="12 · Phone review and Changes">
+            <img src="images/12-phone-review.jpg" alt="12 · Phone review and Changes. Review a proposal without confusing preview with editing.">
+          </button>
+          <figcaption>
+            <strong>12 · Phone review and Changes</strong>
+            <span>Review a proposal without confusing preview with editing.</span>
+          </figcaption>
+        </figure></div>
+    </section>
+    <section id="other">
+      <h2>Skills and recovery</h2>
+      <div class="desktop-grid">
+        <figure class="frame">
+          <button type="button" class="zoom" data-src="images/13-skills-proposed.jpg" data-title="13 · Skills and agents — proposed">
+            <img src="images/13-skills-proposed.jpg" alt="13 · Skills and agents — proposed. Understand what a skill does and where it will be available before importing it.">
+          </button>
+          <figcaption>
+            <strong>13 · Skills and agents — proposed</strong>
+            <span>Understand what a skill does and where it will be available before importing it.</span>
+          </figcaption>
+        </figure>
+        <figure class="frame">
+          <button type="button" class="zoom" data-src="images/14-recovery-dark.jpg" data-title="14 · Recovery and gated diagnostics — dark">
+            <img src="images/14-recovery-dark.jpg" alt="14 · Recovery and gated diagnostics — dark. Recover writing; keep technical inspection out of ordinary writing flows.">
+          </button>
+          <figcaption>
+            <strong>14 · Recovery and gated diagnostics — dark</strong>
+            <span>Recover writing; keep technical inspection out of ordinary writing flows.</span>
+          </figcaption>
+        </figure></div>
+    </section>
+  </main>
+  <footer>
+    Proposed direction only. Neutral paper and serif prose are an alternative to the current earthen, all-Inter system. Raster studies can contain incidental text or control artifacts; the comparison table is the intended nesting.
+  </footer>
+  <div id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged mockup">
+    <img alt="">
+    <p></p>
+  </div>
+  <script>
+    document.querySelectorAll('[role="tab"]').forEach((tab) => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll('[role="tab"]').forEach((t) => t.setAttribute("aria-selected", String(t === tab)));
+        document.querySelectorAll('[role="tabpanel"]').forEach((panel) => {
+          panel.hidden = panel.id !== tab.getAttribute("aria-controls");
+        });
+      });
+    });
+    const box = document.getElementById("lightbox");
+    const boxImg = box.querySelector("img");
+    const boxCap = box.querySelector("p");
+    document.querySelectorAll("button.zoom").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        boxImg.src = btn.dataset.src;
+        boxImg.alt = btn.dataset.title || "";
+        boxCap.textContent = btn.dataset.title || "";
+        box.classList.add("open");
+      });
+    });
+    box.addEventListener("click", () => {
+      box.classList.remove("open");
+      boxImg.removeAttribute("src");
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        box.classList.remove("open");
+        boxImg.removeAttribute("src");
+      }
+    });
+  </script>
+</body>
+</html>
